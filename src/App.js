@@ -25,12 +25,46 @@ function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // const [reqText, setReqText] = useState(null);
+
+
+  let searchId = "";
+  let reqText = "";
+  let page = "";
+
+function handleChange(event){
+    searchId = event.target.value;
+    console.log(searchId);
+    page = "";
+    reqText = 'https://reqres.in/api/products?per_page=5&page='+page+'&id='+searchId;
+    fetch(reqText)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `This is an HTTP error: The status is ${response.status}`
+          );
+        }
+        return response.json();
+      })
+      .then((actualData) => {
+        setData(actualData);
+        setError(null);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setData(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+};
+
 
 
   useEffect(() => {
-    var page = "";
-    var searchId = "";
-    var reqText = 'https://reqres.in/api/products?page='+page+'&id='+searchId;
+    reqText = 'https://reqres.in/api/products?per_page=5&page='+page+'&id='+searchId;
+    console.log(reqText);
+    // let reqText = 'https://reqres.in/api/products';
     fetch(reqText)
       .then((response) => {
         if (!response.ok) {
@@ -59,16 +93,12 @@ function App() {
       {error && (
         <div>{`There is a problem fetching the post data - ${error}`}</div>
       )}
-      <Container maxWidth="md"
-      // sx={{
-      //   display: "flex",
-      //   flexDirection: "column"
-      // }}
-      >
+      <Container maxWidth="md">
       <TextField
-        id="outlined-number"
+        id="outlined-number searchId"
         label="Search ID"
         type="number"
+        onChange = {handleChange}
         align="left"
         sx={{
           float: "left",
@@ -89,21 +119,34 @@ function App() {
             </TableRow>
           </TableHead>
           <TableBody>
+          {data && data.data.length > 0 && data.data.map(({ id, name, year, color, pnatone_value }) => (
+                <TableRow
+                key={id}
+                sx={{ bgcolor: color,
+                  '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {id}
+                </TableCell>
+                <TableCell align="right">{name}</TableCell>
+                <TableCell align="right">{year}</TableCell>
+              </TableRow>
+              ))}
+
 
           {data &&
-            data.data.map(({ id, name, year, color, pnatone_value }) => (
-              <TableRow
-              key={id}
-              sx={{ bgcolor: color,
-                '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {id}
-              </TableCell>
-              <TableCell align="right">{name}</TableCell>
-              <TableCell align="right">{year}</TableCell>
-            </TableRow>
-            ))}
+                <TableRow
+                key={data.data.id}
+                sx={{ bgcolor: data.data.color,
+                  '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {data.data.id}
+                </TableCell>
+                <TableCell align="right">{data.data.name}</TableCell>
+                <TableCell align="right">{data.data.year}</TableCell>
+              </TableRow>
+              }
           </TableBody>
         </Table>
       </TableContainer>
