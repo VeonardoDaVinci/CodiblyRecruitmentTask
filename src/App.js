@@ -20,9 +20,6 @@ const StyledTableCell = styled(TableCell)(() => ({
   [`&.${tableCellClasses.head}`]: {
     fontWeight: "bold",
   },
-  // [`&.${tableCellClasses.body}`]: {
-  //   fontSize: 14,
-  // },
 }));
 
 
@@ -33,18 +30,25 @@ function App() {
 
   let url = new URL(window.location.href)
   let params = new URLSearchParams(url.searchParams);
-  if (!params.has('page')){
-    params.set('page', '1');
-    window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
+
+  function setDefaultQueryParams(){
+    if (!params.has('page')){
+      params.set('page', '1');
+      window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
+    }
   }
+  setDefaultQueryParams();
+
   let page = params.getAll('page');
   let searchId = params.getAll('searchId');
 
 
-  function fetchData(searchId="", page=""){
-    document.querySelector("#outlined-number-searchId").value = searchId;
+  function fetchData(){
+    function setTextInputValue(){
+      document.querySelector("#outlined-number-searchId").value = searchId;
+    }
+    setTextInputValue();
     page = params.getAll('page');
-    console.log(page);
     searchId = params.getAll('searchId');
     let reqText = 'https://reqres.in/api/products?per_page=5&page='+page+'&id='+searchId;
     fetch(reqText)
@@ -69,26 +73,27 @@ function App() {
       });
   }
 
+  function setQueryParams(page, searchId){
+    params.set('page', page);
+    params.set('searchId', searchId);
+    window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
+  }
+
   function handleChange(event){
       searchId = event.target.value;
-      params.set('page', '1');
-      params.set('searchId', searchId);
-      window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
-      // console.log(idparam.getAll('searchId'));
-      fetchData(searchId,page);
+      setQueryParams('1', searchId);
+      fetchData();
   };
 
   function handlePagination(event, pageNumber){
     page = pageNumber;
-    params.set('page', page);
-    params.set('searchId', '');
-    window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
-    fetchData(searchId,page);
+    setQueryParams(pageNumber, "");
+    fetchData();
     document.querySelector("#outlined-number-searchId").value = "";
   }
 
   useEffect(() => {
-    fetchData(searchId,page);
+    fetchData();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -138,7 +143,6 @@ function App() {
                 <TableCell align="right">{year}</TableCell>
               </TableRow>
               ))}
-
 
           {data && !data.data.length &&
                 <TableRow
