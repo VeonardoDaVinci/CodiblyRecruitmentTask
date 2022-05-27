@@ -42,6 +42,7 @@ function App() {
 
 
   function fetchData(searchId="", page=""){
+    document.querySelector("#outlined-number-searchId").value = searchId;
     page = params.getAll('page');
     console.log(page);
     searchId = params.getAll('searchId');
@@ -70,7 +71,7 @@ function App() {
 
   function handleChange(event){
       searchId = event.target.value;
-      params.set('page', '');
+      params.set('page', '1');
       params.set('searchId', searchId);
       window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
       // console.log(idparam.getAll('searchId'));
@@ -82,8 +83,8 @@ function App() {
     params.set('page', page);
     params.set('searchId', '');
     window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
-    document.querySelector("#outlined-number-searchId").value = "";
     fetchData(searchId,page);
+    document.querySelector("#outlined-number-searchId").value = "";
   }
 
   useEffect(() => {
@@ -126,6 +127,7 @@ function App() {
           {data && data.data.length > 1 && data.data.map(({ id, name, year, color, pnatone_value }) => (
                 <TableRow
                 key={id}
+                role="datatablerow"
                 sx={{ bgcolor: color,
                   '&:last-child td, &:last-child th': { border: 0 } }}
               >
@@ -141,6 +143,7 @@ function App() {
           {data && !data.data.length &&
                 <TableRow
                 key={data.data.id}
+                role="datatablerow"
                 sx={{ bgcolor: data.data.color,
                   '&:last-child td, &:last-child th': { border: 0 } }}
               >
@@ -162,6 +165,7 @@ function App() {
         showLastButton = {false}
         onChange={handlePagination}
         page={parseInt(page[0])}
+        sx={{marginTop:"20px"}}
         renderItem={(item) => (
           <PaginationItem
             components={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
